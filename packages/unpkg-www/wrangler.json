@@ -6,16 +6,19 @@
   "name": "unpkg-www",
   "observability": { "enabled": true, "head_sampling_rate": 0.001 },
   "routes": [
+    { "pattern": "app.unpkg.com", "custom_domain": true },
+    { "pattern": "files.unpkg.com", "custom_domain": true },
     { "pattern": "www.unpkg.com", "custom_domain": true },
     { "pattern": "unpkg.com", "custom_domain": true }
   ],
   "vars": {
+    "APP_ASSETS_ORIGIN": "https://app.unpkg.com",
     "APP_ORIGIN": "https://app.unpkg.com",
-    "ASSETS_ORIGIN": "https://unpkg.com",
     "DEV": false,
     "FILES_ORIGIN": "https://files.unpkg.com",
     "MODE": "production",
-    "ORIGIN": "https://unpkg.com"
+    "WWW_ASSETS_ORIGIN": "https://unpkg.com",
+    "WWW_ORIGIN": "https://unpkg.com"
   },
 
   "env": {
@@ -23,12 +26,13 @@
       "name": "unpkg-www-dev",
       "routes": [],
       "vars": {
+        "APP_ASSETS_ORIGIN": "http://localhost:8001",
         "APP_ORIGIN": "http://localhost:3001",
-        "ASSETS_ORIGIN": "http://localhost:8000",
         "DEV": true,
         "FILES_ORIGIN": "http://localhost:4000",
         "MODE": "development",
-        "ORIGIN": "http://localhost:3000"
+        "WWW_ASSETS_ORIGIN": "http://localhost:8000",
+        "WWW_ORIGIN": "http://localhost:3000"
       }
     },
 
@@ -36,16 +40,19 @@
       "name": "unpkg-www-staging",
       "observability": { "enabled": true },
       "routes": [
+        { "pattern": "app.unpkg.dev", "custom_domain": true },
+        { "pattern": "files.unpkg.dev", "custom_domain": true },
         { "pattern": "www.unpkg.dev", "custom_domain": true },
         { "pattern": "unpkg.dev", "custom_domain": true }
       ],
       "vars": {
+        "APP_ASSETS_ORIGIN": "https://app.unpkg.dev",
         "APP_ORIGIN": "https://app.unpkg.dev",
-        "ASSETS_ORIGIN": "https://unpkg.dev",
         "DEV": false,
         "FILES_ORIGIN": "https://files.unpkg.dev",
         "MODE": "staging",
-        "ORIGIN": "https://unpkg.dev"
+        "WWW_ASSETS_ORIGIN": "https://unpkg.dev",
+        "WWW_ORIGIN": "https://unpkg.dev"
       }
     }
   }
