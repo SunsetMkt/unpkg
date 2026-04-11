@@ -38,4 +38,19 @@ describe("worker host routing", () => {
     let response = await worker.fetch(new Request("https://unknown.example/"), env, context);
     expect(response.status).toBe(200);
   });
+
+  it("defaults localhost to www behavior", async () => {
+    let response = await worker.fetch(new Request("http://localhost:3000/"), env, context);
+    expect(response.status).toBe(200);
+  });
+
+  it("defaults unknown unpkg subdomains to www behavior", async () => {
+    let response = await worker.fetch(new Request("https://edge.unpkg.com/"), env, context);
+    expect(response.status).toBe(200);
+  });
+
+  it("defaults IPv6 loopback to www behavior", async () => {
+    let response = await worker.fetch(new Request("http://[::1]:3000/"), env, context);
+    expect(response.status).toBe(200);
+  });
 });
