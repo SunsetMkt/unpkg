@@ -1,13 +1,13 @@
 import * as semver from "semver";
 import type { PackageFileListing } from "unpkg-worker";
 
-import { env } from "./env.ts";
+import type { Env } from "./env.ts";
 import { getFile, listFiles, PackageNotFoundError } from "./npm-files.ts";
 import { logRequest } from "./request-logging.ts";
 
 const publicNpmRegistry = "https://registry.npmjs.org";
 
-export async function handleRequest(request: Request): Promise<Response> {
+export async function handleRequest(request: Request, env: Env): Promise<Response> {
   try {
     let start = Date.now();
     let response = await handleRequest_(request);

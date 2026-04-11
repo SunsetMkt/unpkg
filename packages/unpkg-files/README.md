@@ -1,6 +1,6 @@
 # unpkg-files
 
-This package is the file server for UNPKG. It has one job: fetch tarballs from npm, decompress them, and extract their contents. It is deployed on [Fly.io](https://fly.io/).
+This package is the file server for UNPKG. It has one job: fetch tarballs from npm, decompress them, and extract their contents. It is deployed as a Cloudflare Worker.
 
 ## Development
 
@@ -19,9 +19,8 @@ pnpm dev
 
 ## Deploying
 
-Build the server and boot it:
+Deploy the worker:
 
 ```
-pnpm build
-bun ./dist/server.js
+pnpm run deploy
 ```

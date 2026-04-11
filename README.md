@@ -44,15 +44,15 @@ The dev server will be listening on `http://localhost:3000`.
 
 ## Deploying
 
-The `unpkg-files` backend is deployed on [Fly.io](https://fly.io). You'll need an account.
+The `unpkg-files` backend is deployed on Cloudflare Workers. You'll need a [Cloudflare](https://cloudflare.com) account.
 
-Next, adjust the Fly config in `packages/unpkg-files/fly.json` (you'll need your own app `name`) and deploy:
+Next, adjust `packages/unpkg-files/wrangler.json` (routes and vars) and deploy:
 
 ```sh
 cd packages/unpkg-files && pnpm run deploy
 ```
 
-To deploy the workers, you'll need a [Cloudflare](https://cloudflare.com) account. You will also need to (1) edit the `wrangler.json` file in each worker and update its [`routes`](https://developers.cloudflare.com/workers/wrangler/configuration/) to your own domain(s) and (2) adjust each worker's environment `vars` (in `wrangler.json`) so they can find one another in production.
+To deploy the other workers, you will also need to (1) edit each `wrangler.json` and update its [`routes`](https://developers.cloudflare.com/workers/wrangler/configuration/) to your own domain(s) and (2) adjust each worker's environment `vars` so they can find one another in production.
 
 Once you've done that, you can deploy each worker with:
 

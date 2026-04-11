@@ -1,11 +1,18 @@
 import { expect, describe, it, beforeAll, afterAll } from "bun:test";
 
 import { packageTarballs } from "../../test/fixtures.ts";
+import type { Env } from "./env.ts";
 import { handleRequest } from "./request-handler.ts";
+
+const env: Env = {
+  DEV: false,
+  MODE: "test",
+  ORIGIN: "https://files.unpkg.com",
+};
 
 function dispatchFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   let request = input instanceof Request ? input : new Request(input, init);
-  return handleRequest(request);
+  return handleRequest(request, env);
 }
 
 function fileResponse(path: string): Response {
