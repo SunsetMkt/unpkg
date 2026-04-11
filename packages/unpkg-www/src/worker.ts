@@ -15,21 +15,54 @@ export interface Env {
   WWW_ORIGIN: string;
 }
 
+const appDomains = new Set(["app.unpkg.com", "app.unpkg.dev"]);
+const filesDomains = new Set(["files.unpkg.com", "files.unpkg.dev"]);
+
 function getCache(): Cache | null {
   // @ts-expect-error - `caches.default` is missing in @cloudflare/workers-types
   return globalThis.caches?.default ?? null;
 }
 
 function getDomainType(hostname: string): "app" | "files" | "www" {
-  if (hostname === "app.unpkg.com" || hostname === "app.unpkg.dev" || hostname === "localhost") {
+  if (appDomains.has(hostname)) {
     return "app";
   }
 
-  if (hostname === "files.unpkg.com" || hostname === "files.unpkg.dev") {
+  if (filesDomains.has(hostname)) {
     return "files";
   }
 
   return "www";
+}
+
+function buildAppEnv(env: Env): AppEnv {
+  return {
+    ASSETS_ORIGIN: env.APP_ASSETS_ORIGIN,
+    DEV: env.DEV,
+    FILES_ORIGIN: env.FILES_ORIGIN,
+    MODE: env.MODE,
+    ORIGIN: env.APP_ORIGIN,
+    WWW_ORIGIN: env.WWW_ORIGIN,
+  };
+}
+
+function buildFilesEnv(env: Env): FilesEnv {
+  return {
+    DEV: env.DEV,
+    MODE: env.MODE,
+    ORIGIN: env.FILES_ORIGIN,
+  };
+}
+
+function buildWwwEnv(env: Env): WwwEnv {
+  return {
+    APP_ORIGIN: env.APP_ORIGIN,
+    ASSETS_ORIGIN: env.WWW_ASSETS_ORIGIN,
+    DEV: env.DEV,
+    FILES_ORIGIN: env.FILES_ORIGIN,
+    MODE: env.MODE,
+    ORIGIN: env.WWW_ORIGIN,
+  };
 }
 
 export default {
@@ -43,31 +76,13 @@ export default {
 
         switch (domainType) {
           case "app":
-            response = await handleAppRequest(request, {
-              ASSETS_ORIGIN: env.APP_ASSETS_ORIGIN,
-              DEV: env.DEV,
-              FILES_ORIGIN: env.FILES_ORIGIN,
-              MODE: env.MODE,
-              ORIGIN: env.APP_ORIGIN,
-              WWW_ORIGIN: env.WWW_ORIGIN,
-            } satisfies AppEnv, context);
+            response = await handleAppRequest(request, buildAppEnv(env), context);
             break;
           case "files":
-            response = await handleFilesRequest(request, {
-              DEV: env.DEV,
-              MODE: env.MODE,
-              ORIGIN: env.FILES_ORIGIN,
-            } satisfies FilesEnv);
+            response = await handleFilesRequest(request, buildFilesEnv(env));
             break;
           default:
-            response = await handleWwwRequest(request, {
-              APP_ORIGIN: env.APP_ORIGIN,
-              ASSETS_ORIGIN: env.WWW_ASSETS_ORIGIN,
-              DEV: env.DEV,
-              FILES_ORIGIN: env.FILES_ORIGIN,
-              MODE: env.MODE,
-              ORIGIN: env.WWW_ORIGIN,
-            } satisfies WwwEnv, context);
+            response = await handleWwwRequest(request, buildWwwEnv(env), context);
             break;
         }
 
