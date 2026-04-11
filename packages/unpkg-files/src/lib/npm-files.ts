@@ -138,7 +138,7 @@ async function fetchAndParsePackage(
       }
 
       let name = header.name.replace(/^[^\/]+\//, "/");
-      let mode = handler.match(name, header);
+      let mode = handler.match(name);
       if (mode === "skip") {
         stream.resume();
         return next();
@@ -184,7 +184,7 @@ interface ParsedFile {
 }
 
 interface ParseHandler {
-  match(name: string, header: tar.Headers): ParseMode;
+  match(name: string): ParseMode;
   onFile(name: string, parsedFile: ParsedFile, header: tar.Headers): void;
 }
 
