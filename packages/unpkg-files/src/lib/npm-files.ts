@@ -3,9 +3,9 @@ import crypto from "node:crypto";
 
 import gunzipMaybe from "gunzip-maybe";
 import tar from "tar-stream";
-import type { PackageFile, PackageFileMetadata } from "unpkg-worker";
 
 import { getContentType } from "./content-type.ts";
+import type { PackageFile, PackageFileMetadata } from "./npm-file-types.ts";
 
 const defaultHashAlgorithm = "sha256";
 

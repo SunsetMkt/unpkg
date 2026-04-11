@@ -13,12 +13,12 @@
   },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.20250320.0",
-    "@types/bun": "^1.2.8",
     "@types/semver": "^7.5.8",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "vitest": "^3.2.4"
   },
   "scripts": {
     "build": "tsc --project ./tsconfig.build.json",
-    "test": "bun test"
+    "test": "vitest run"
   }
 }

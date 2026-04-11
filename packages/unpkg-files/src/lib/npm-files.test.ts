@@ -1,6 +1,5 @@
-import { expect, describe, it, beforeAll, afterAll } from "bun:test";
-
-import type { PackageFile } from "unpkg-worker";
+import * as fsp from "node:fs/promises";
+import { expect, describe, it, beforeAll, afterAll } from "vitest";
 
 import { packageTarballs } from "../../test/fixtures.ts";
 import { getFile, listFiles } from "./npm-files.ts";
@@ -10,14 +9,13 @@ const publicNpmRegistry = "https://registry.npmjs.org";
 describe("npm files", () => {
   let globalFetch: typeof fetch | undefined;
 
-  function fileResponse(file: string): Response {
-    return new Response(Bun.file(file));
+  async function fileResponse(file: string): Promise<Response> {
+    return new Response(await fsp.readFile(file));
   }
 
   beforeAll(() => {
     globalFetch = globalThis.fetch;
 
-    // Does not implement Bun's non-spec fetch.preconnect API - https://bun.sh/docs/api/fetch#preconnect-to-a-host
     // @ts-expect-error
     globalThis.fetch = async (input: RequestInfo | URL) => {
       let url = input instanceof Request ? input.url : input;
@@ -45,13 +43,9 @@ describe("npm files", () => {
 
   describe("getFile", () => {
     it("fetches a file from @ffmpeg/core-0.12.6.tgz", async () => {
-      let file = (await getFile(
-        publicNpmRegistry,
-        "@ffmpeg/core",
-        "0.12.6",
-        "/dist/umd/ffmpeg-core.js"
-      )) as PackageFile;
+      let file = await getFile(publicNpmRegistry, "@ffmpeg/core", "0.12.6", "/dist/umd/ffmpeg-core.js");
       expect(file).not.toBeNull();
+      if (file == null) throw new Error("Expected file to exist");
       expect(file.path).toBe("/dist/umd/ffmpeg-core.js");
       expect(file.size).toBe(114673);
       expect(file.type).toBe("text/javascript");

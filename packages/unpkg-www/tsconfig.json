@@ -1,12 +1,17 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
     "strict": true,
     "target": "ESNext",
     "module": "ES2022",
     "moduleResolution": "Bundler",
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
-    "types": ["@cloudflare/workers-types", "bun", "node"],
+    "paths": {
+      "unpkg-files": ["../unpkg-files/src/unpkg-files.ts"],
+      "unpkg-worker": ["../unpkg-worker/src/unpkg-worker.ts"]
+    },
+    "types": ["@cloudflare/workers-types", "node"],
     "jsx": "react-jsx",
     "jsxImportSource": "preact",
     "noEmit": true

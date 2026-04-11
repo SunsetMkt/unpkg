@@ -1,4 +1,4 @@
-import { expect, describe, it } from "bun:test";
+import { expect, describe, it } from "vitest";
 
 import type { PackageJson } from "./npm-info.ts";
 import { resolvePackageExport } from "./pkg-exports.ts";
