@@ -1,11 +1,11 @@
 import { Readable } from "node:stream";
+import crypto from "node:crypto";
 
 import gunzipMaybe from "gunzip-maybe";
 import tar from "tar-stream";
 import type { PackageFile, PackageFileMetadata } from "unpkg-worker";
 
 import { getContentType } from "./content-type.ts";
-import { getSubresourceIntegrity } from "./subresource-integrity.ts";
 
 export async function getFile(
   registry: string,
@@ -15,18 +15,19 @@ export async function getFile(
 ): Promise<PackageFile | null> {
   let file: PackageFile | null = null;
 
-  await fetchAndParsePackage(registry, packageName, version, (path, content) => {
-    if (path.toLowerCase() !== filename.toLowerCase()) {
-      return;
-    }
-
-    file = {
-      path,
-      body: content,
-      size: content.length,
-      type: getContentType(path),
-      integrity: getSubresourceIntegrity(content),
-    };
+  await fetchAndParsePackage(registry, packageName, version, {
+    match(path) {
+      return path.toLowerCase() === filename.toLowerCase() ? "buffer" : "skip";
+    },
+    onFile(path, parsedFile) {
+      file = {
+        path,
+        body: parsedFile.content!,
+        size: parsedFile.size,
+        type: getContentType(path),
+        integrity: parsedFile.integrity,
+      };
+    },
   });
 
   return file;
@@ -40,17 +41,21 @@ export async function listFiles(
 ): Promise<PackageFileMetadata[]> {
   let files: PackageFileMetadata[] = [];
 
-  await fetchAndParsePackage(registry, packageName, version, async (path, content) => {
-    if (path.endsWith("/") || !path.startsWith(prefix)) {
-      return;
-    }
-
-    files.push({
-      path,
-      size: content.length,
-      type: getContentType(path),
-      integrity: getSubresourceIntegrity(content),
-    });
+  await fetchAndParsePackage(registry, packageName, version, {
+    match(path) {
+      if (path.endsWith("/") || !path.startsWith(prefix)) {
+        return "skip";
+      }
+      return "hash";
+    },
+    onFile(path, parsedFile) {
+      files.push({
+        path,
+        size: parsedFile.size,
+        type: getContentType(path),
+        integrity: parsedFile.integrity,
+      });
+    },
   });
 
   return files;
@@ -74,7 +79,7 @@ async function fetchAndParsePackage(
   registry: string,
   packageName: string,
   version: string,
-  handler: (name: string, content: Uint8Array, header: tar.Headers) => void
+  handler: ParseHandler
 ): Promise<void> {
   let tarballUrl = createTarballUrl(registry, packageName, version);
 
@@ -132,7 +137,16 @@ async function fetchAndParsePackage(
         return next();
       }
 
-      let chunks: Buffer[] = [];
+      let name = header.name.replace(/^[^\/]+\//, "/");
+      let mode = handler.match(name, header);
+      if (mode === "skip") {
+        stream.resume();
+        return next();
+      }
+
+      let hash = crypto.createHash("sha256");
+      let size = 0;
+      let chunks: Buffer[] | null = mode === "buffer" ? [] : null;
 
       stream.on("error", (error) => {
         cleanup();
@@ -140,15 +154,15 @@ async function fetchAndParsePackage(
       });
 
       stream.on("data", (chunk) => {
-        chunks.push(chunk);
+        size += chunk.length;
+        hash.update(chunk);
+        chunks?.push(chunk);
       });
 
       stream.on("end", () => {
         try {
-          // Every npm tarball has a top-level directory named "package" or
-          // similar. Strip it off to get the actual file path.
-          let name = header.name.replace(/^[^\/]+\//, "/");
-          handler(name, Buffer.concat(chunks), header);
+          let integrity = `sha256-${hash.digest("base64")}`;
+          handler.onFile(name, { content: chunks ? Buffer.concat(chunks) : undefined, size, integrity }, header);
           next();
         } catch (error) {
           cleanup();
@@ -159,6 +173,19 @@ async function fetchAndParsePackage(
 
     tarball.pipe(gunzip).pipe(extract);
   });
+}
+
+type ParseMode = "skip" | "hash" | "buffer";
+
+interface ParsedFile {
+  content?: Uint8Array;
+  size: number;
+  integrity: string;
+}
+
+interface ParseHandler {
+  match(name: string, header: tar.Headers): ParseMode;
+  onFile(name: string, parsedFile: ParsedFile, header: tar.Headers): void;
 }
 
 function createTarballUrl(registry: string, packageName: string, version: string): URL {

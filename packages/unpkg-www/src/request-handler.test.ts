@@ -19,6 +19,12 @@ const context = {
   waitUntil() {},
 } as unknown as ExecutionContext;
 
+const filesEnv = {
+  DEV: false,
+  MODE: "test",
+  ORIGIN: "https://files.unpkg.com",
+} as const;
+
 function dispatchFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
   let request = input instanceof Request ? input : new Request(input, init);
   return handleRequest(request, env, context);
@@ -54,7 +60,7 @@ describe("handleRequest", () => {
       if (url.origin === env.FILES_ORIGIN) {
         // Run the request through the file server. This allows us to write integration tests
         // that run without booting the file server.
-        return handleFilesRequest(request);
+        return handleFilesRequest(request, filesEnv);
       }
 
       switch (url.href) {
