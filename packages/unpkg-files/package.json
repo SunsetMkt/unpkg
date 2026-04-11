@@ -26,7 +26,7 @@
     "@types/tar-stream": "^3.1.3",
     "typescript": "^5.7.2",
     "unpkg-worker": "workspace:*",
-    "wrangler": "^4.3.0"
+    "wrangler": "^4.59.1"
   },
   "scripts": {
     "build": "tsc --project ./tsconfig.build.json",
