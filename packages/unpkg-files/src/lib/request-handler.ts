@@ -1,7 +1,7 @@
 import * as semver from "semver";
-import type { PackageFileListing } from "unpkg-worker";
 
 import type { Env } from "./env.ts";
+import type { PackageFileListing } from "./npm-file-types.ts";
 import { getFile, listFiles, PackageNotFoundError } from "./npm-files.ts";
 import { logRequest } from "./request-logging.ts";
 

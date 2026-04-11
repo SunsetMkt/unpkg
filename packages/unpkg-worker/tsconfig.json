@@ -7,7 +7,7 @@
     "allowImportingTsExtensions": true,
     "verbatimModuleSyntax": true,
     "rewriteRelativeImportExtensions": true,
-    "types": ["@cloudflare/workers-types", "bun"],
+    "types": ["@cloudflare/workers-types"],
     "skipLibCheck": true,
     "noEmit": true
   }

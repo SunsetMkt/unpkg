@@ -21,7 +21,7 @@ This repository contains the production source for UNPKG. There are 4 packages:
 - [`unpkg-worker`](./packages/unpkg-worker/) is a shared set of utilites between the web apps (Cloudflare workers)
 - [`unpkg-www`](./packages/unpkg-www/) is the main UNPKG app
 
-We use [Bun](https://bun.sh/) in development, as well as [pnpm](https://pnpm.io/). Install these first.
+We use [Node.js](https://nodejs.org) in development, as well as [pnpm](https://pnpm.io/). Install these first.
 
 Next, install all dependencies and run the tests:
 

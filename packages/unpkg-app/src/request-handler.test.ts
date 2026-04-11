@@ -1,4 +1,5 @@
-import { expect, describe, it, beforeAll, afterAll } from "bun:test";
+import * as fsp from "node:fs/promises";
+import { expect, describe, it, beforeAll, afterAll } from "vitest";
 
 import { packageInfo } from "../test/fixtures.ts";
 import type { Env } from "./env.ts";
@@ -22,8 +23,8 @@ function dispatchFetch(input: RequestInfo | URL, init?: RequestInit): Promise<Re
   return handleRequest(request, env, context);
 }
 
-function fileResponse(path: string): Response {
-  return new Response(Bun.file(path));
+async function fileResponse(path: string): Promise<Response> {
+  return new Response(await fsp.readFile(path));
 }
 
 describe("handleRequest", () => {
