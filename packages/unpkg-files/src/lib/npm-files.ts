@@ -7,6 +7,8 @@ import type { PackageFile, PackageFileMetadata } from "unpkg-worker";
 
 import { getContentType } from "./content-type.ts";
 
+const defaultHashAlgorithm = "sha256";
+
 export async function getFile(
   registry: string,
   packageName: string,
@@ -144,7 +146,7 @@ async function fetchAndParsePackage(
         return next();
       }
 
-      let hash = crypto.createHash("sha256");
+      let hash = crypto.createHash(defaultHashAlgorithm);
       let size = 0;
       let chunks: Buffer[] | null = mode === "buffer" ? [] : null;
 
@@ -161,7 +163,7 @@ async function fetchAndParsePackage(
 
       stream.on("end", () => {
         try {
-          let integrity = `sha256-${hash.digest("base64")}`;
+          let integrity = `${defaultHashAlgorithm}-${hash.digest("base64")}`;
           handler.onFile(name, { content: chunks ? Buffer.concat(chunks) : undefined, size, integrity }, header);
           next();
         } catch (error) {
