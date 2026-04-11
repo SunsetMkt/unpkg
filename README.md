@@ -44,21 +44,26 @@ The dev server will be listening on `http://localhost:3000`.
 
 ## Deploying
 
-The `unpkg-files` backend is deployed on Cloudflare Workers. You'll need a [Cloudflare](https://cloudflare.com) account.
+UNPKG now supports an all-in-one worker deployment from `packages/unpkg-www` that serves:
 
-Next, adjust `packages/unpkg-files/wrangler.json` (routes and vars) and deploy:
+- `unpkg.com` and `www.unpkg.com` (main app)
+- `app.unpkg.com` (file browser app)
+- `files.unpkg.com` (file backend API)
 
-```sh
-cd packages/unpkg-files && pnpm run deploy
-```
+The worker selects behavior by incoming hostname.
 
-To deploy the other workers, you will also need to (1) edit each `wrangler.json` and update its [`routes`](https://developers.cloudflare.com/workers/wrangler/configuration/) to your own domain(s) and (2) adjust each worker's environment `vars` so they can find one another in production.
+You'll need a [Cloudflare](https://cloudflare.com) account.
 
-Once you've done that, you can deploy each worker with:
+Adjust `packages/unpkg-www/wrangler.json` (routes and vars) and deploy:
 
 ```sh
 cd packages/unpkg-www && pnpm run deploy
-cd packages/unpkg-app && pnpm run deploy
+```
+
+For staging:
+
+```sh
+cd packages/unpkg-www && pnpm run deploy:staging
 ```
 
 ## License
